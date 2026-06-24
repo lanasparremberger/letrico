@@ -1,4 +1,4 @@
-import { Trophy, Clock, Star } from "lucide-react";
+import { Trophy, Clock, User } from "lucide-react";
 import { motion } from "motion/react";
 
 interface TopStatsProps {
@@ -16,7 +16,12 @@ export function TopStats({ userName, badges, timeToday }: TopStatsProps) {
         animate={{ y: 0, opacity: 1 }}
         className="bg-gradient-to-r from-[#ffe990] to-[#ffde59] rounded-3xl px-6 py-5 shadow-lg"
       >
-        <h2 className="text-2xl font-bold text-[#494949]">Olá, {userName}! 👋</h2>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-white/60 flex items-center justify-center shadow-inner">
+            <User className="w-6 h-6 text-[#494949]" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#494949]">Olá, {userName}!</h2>
+        </div>
       </motion.div>
 
       {/* Stats badges */}

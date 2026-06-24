@@ -10,6 +10,8 @@ import {
   Star,
   Flame,
   Zap,
+  Users,
+  School,
 } from "lucide-react";
 import * as Progress from "@radix-ui/react-progress";
 
@@ -28,6 +30,8 @@ export function ProfileScreen() {
     totalLevels: 45,
     achievements: 4,
     favoriteArea: "Fala",
+    guardians: ["Ana Paula Silva", "Carlos Eduardo Silva"],
+    institution: "Escola Municipal Monteiro Lobato",
   };
 
   const stats = [
@@ -170,6 +174,44 @@ export function ProfileScreen() {
             <span className="text-sm font-bold text-[#494949]">
               {userProfile.favoriteArea}
             </span>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Guardians & Institution */}
+      <div className="max-w-md mx-auto px-6 pb-6">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.75 }}
+          className="bg-white rounded-2xl p-5 shadow-md space-y-4"
+        >
+          <h3 className="font-bold text-[#494949] text-sm">Responsáveis e Instituição</h3>
+
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#ff6b9a20" }}>
+                <Users className="w-5 h-5 text-[#ff6b9a]" />
+              </div>
+              <div>
+                <p className="text-xs text-[#494949]/60 mb-1">Responsáveis</p>
+                {userProfile.guardians.map((guardian) => (
+                  <p key={guardian} className="text-sm font-semibold text-[#494949]">{guardian}</p>
+                ))}
+              </div>
+            </div>
+
+            <div className="h-px bg-gray-100" />
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#41b8d520" }}>
+                <School className="w-5 h-5 text-[#41b8d5]" />
+              </div>
+              <div>
+                <p className="text-xs text-[#494949]/60 mb-1">Instituição de Ensino</p>
+                <p className="text-sm font-semibold text-[#494949]">{userProfile.institution}</p>
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>

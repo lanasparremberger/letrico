@@ -47,54 +47,51 @@ export function LevelNodeVertical({
           delay: level * 0.1,
         }}
       >
+        {/* "ATUAL" label for current level */}
+        {isCurrent && (
+          <motion.div
+            animate={{ y: [0, -4, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="mb-1 px-3 py-0.5 rounded-full text-xs font-bold text-white shadow-md"
+            style={{ backgroundColor: color }}
+          >
+            ATUAL
+          </motion.div>
+        )}
+
         {/* Level button */}
         <motion.button
           onClick={!isLocked ? onClick : undefined}
           disabled={isLocked}
-          className={`relative w-20 h-20 rounded-full flex items-center justify-center font-bold transition-all duration-300 shadow-xl ${
-            isLocked
-              ? "bg-gray-300 cursor-not-allowed"
-              : isCurrent
-              ? "ring-4 ring-white ring-offset-4 scale-110"
-              : ""
-          }`}
+          className="relative w-20 h-20 rounded-full flex items-center justify-center font-bold transition-all duration-300"
           style={{
-            backgroundColor: isLocked ? undefined : color,
+            backgroundColor: isLocked ? "#d1d5db" : color,
             boxShadow: isLocked
-              ? undefined
+              ? "0 4px 12px rgba(0,0,0,0.1)"
+              : isCurrent
+              ? `0 0 0 4px white, 0 0 0 7px ${color}, 0 8px 24px ${color}60`
               : `0 8px 24px ${color}40, 0 4px 8px ${color}30`,
+            transform: isCurrent ? "scale(1.12)" : undefined,
           }}
-          whileHover={!isLocked ? { scale: 1.2, rotate: 8 } : {}}
+          whileHover={!isLocked ? { scale: isCurrent ? 1.18 : 1.12, rotate: 8 } : {}}
           whileTap={!isLocked ? { scale: 0.9 } : {}}
         >
           {isLocked ? (
-            <Lock className="w-8 h-8 text-gray-500" />
+            <Lock className="w-8 h-8 text-gray-400" />
           ) : (
-            <span className="text-3xl font-bold text-white drop-shadow-lg">
+            <span className="text-3xl font-bold text-white drop-shadow-lg relative z-10">
               {level}
             </span>
           )}
 
-          {/* Pulse animation for current level */}
+          {/* Pulse for current level */}
           {isCurrent && (
-            <>
-              <motion.div
-                className="absolute inset-0 rounded-full"
-                style={{ backgroundColor: color }}
-                animate={{
-                  scale: [1, 1.4, 1],
-                  opacity: [0.5, 0, 0.5],
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-              <motion.div
-                className="absolute -top-8 left-1/2 -translate-x-1/2 text-2xl"
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                👆
-              </motion.div>
-            </>
+            <motion.div
+              className="absolute inset-0 rounded-full"
+              style={{ backgroundColor: color }}
+              animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           )}
 
           {/* Checkmark for completed */}

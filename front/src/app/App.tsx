@@ -8,6 +8,13 @@ import { MascotSelector } from "./components/MascotSelector";
 import { RankingScreen } from "./components/screens/RankingScreen";
 import { TrophiesScreen } from "./components/screens/TrophiesScreen";
 import { ProfileScreen } from "./components/screens/ProfileScreen";
+import { LoginScreen } from "./components/screens/LoginScreen";
+import { ParentBottomNav } from "./components/parent/ParentBottomNav";
+import { ParentHome } from "./components/parent/ParentHome";
+import { ParentStats } from "./components/parent/ParentStats";
+import { ParentForum } from "./components/parent/ParentForum";
+import { ParentNotifications } from "./components/parent/ParentNotifications";
+import { ParentProfile } from "./components/parent/ParentProfile";
 import logoLetrico from "../imports/loucuras_do_tcc__1_-removebg-preview.png";
 
 // Level configuration por mascote - 15 fases cada
@@ -65,57 +72,45 @@ const levelsByMascot = {
   ],
 };
 
-// Helper function to create diamond/vertical path pattern
 const getLevelPosition = (index: number, containerWidth: number) => {
   const centerX = containerWidth / 2;
   const startY = 180;
   const verticalGap = 140;
-
-  // Pattern: center -> left -> right -> center (diamond pattern)
   const patterns = [
-    { x: centerX, y: startY }, // 1 - center bottom
-    { x: centerX - 100, y: startY + verticalGap }, // 2 - left
-    { x: centerX + 100, y: startY + verticalGap }, // 3 - right
-    { x: centerX, y: startY + verticalGap * 2 }, // 4 - center
-    { x: centerX, y: startY + verticalGap * 3 }, // 5 - center
-    { x: centerX - 100, y: startY + verticalGap * 4 }, // 6 - left
-    { x: centerX + 100, y: startY + verticalGap * 4 }, // 7 - right
-    { x: centerX, y: startY + verticalGap * 5 }, // 8 - center
-    { x: centerX, y: startY + verticalGap * 6 }, // 9 - center
-    { x: centerX, y: startY + verticalGap * 7 }, // 10 - center
+    { x: centerX, y: startY },
+    { x: centerX - 100, y: startY + verticalGap },
+    { x: centerX + 100, y: startY + verticalGap },
+    { x: centerX, y: startY + verticalGap * 2 },
+    { x: centerX, y: startY + verticalGap * 3 },
+    { x: centerX - 100, y: startY + verticalGap * 4 },
+    { x: centerX + 100, y: startY + verticalGap * 4 },
+    { x: centerX, y: startY + verticalGap * 5 },
+    { x: centerX, y: startY + verticalGap * 6 },
+    { x: centerX, y: startY + verticalGap * 7 },
   ];
-
   return patterns[index] || { x: centerX, y: startY + verticalGap * index };
 };
 
+type AppMode = "login" | "child" | "parent";
+type ChildTab = "home" | "ranking" | "trophies" | "profile";
+type ParentTab = "home" | "stats" | "forum" | "notifications" | "profile";
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<"home" | "ranking" | "trophies" | "profile">("home");
+  const [appMode, setAppMode] = useState<AppMode>("login");
+  const [childTab, setChildTab] = useState<ChildTab>("home");
+  const [parentTab, setParentTab] = useState<ParentTab>("home");
   const [activeMascot, setActiveMascot] = useState<"speech" | "reading" | "writing">("speech");
 
   const [userProgress] = useState({
     userName: "Gael",
-    speech: {
-      currentLevel: 5,
-      completedLevels: [1, 2, 3, 4],
-      stars: { 1: 3, 2: 2, 3: 3, 4: 1 },
-    },
-    reading: {
-      currentLevel: 3,
-      completedLevels: [1, 2],
-      stars: { 1: 3, 2: 2 },
-    },
-    writing: {
-      currentLevel: 2,
-      completedLevels: [1],
-      stars: { 1: 3 },
-    },
+    speech: { currentLevel: 5, completedLevels: [1, 2, 3, 4], stars: { 1: 3, 2: 2, 3: 3, 4: 1 } },
+    reading: { currentLevel: 3, completedLevels: [1, 2], stars: { 1: 3, 2: 2 } },
+    writing: { currentLevel: 2, completedLevels: [1], stars: { 1: 3 } },
     badges: 3,
     timeToday: 15,
   });
 
   const [containerWidth] = useState(400);
-
-  // Get current mascot data
   const currentMascotProgress = userProgress[activeMascot];
   const currentLevels = levelsByMascot[activeMascot];
 
@@ -125,46 +120,77 @@ export default function App() {
     return "locked";
   };
 
-  const handleLevelClick = (levelNum: number) => {
-    console.log(`Clicked ${activeMascot} level ${levelNum}`);
-  };
+  const positions = currentLevels.map((_, index) => getLevelPosition(index, containerWidth));
 
-  // Get all positions for the path
-  const positions = currentLevels.map((_, index) =>
-    getLevelPosition(index, containerWidth)
-  );
-
-  // Background colors by mascot
   const bgGradients = {
     speech: "from-[#fffdf7] via-[#ffde59]/10 to-[#ffe990]/10",
     reading: "from-[#fffdf7] via-[#b197fc]/10 to-[#b197fc]/5",
     writing: "from-[#fffdf7] via-[#41b8d5]/10 to-[#6ec6ff]/10",
   };
 
-  // Render screens based on active tab
-  if (activeTab === "ranking") {
+  const handleLogin = (type: "child" | "parent") => {
+    setAppMode(type);
+  };
+
+  const handleLogout = () => {
+    setAppMode("login");
+    setChildTab("home");
+    setParentTab("home");
+  };
+
+  // ── LOGIN ──────────────────────────────────────────────────────────────
+  if (appMode === "login") {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
+  // ── PARENT APP ─────────────────────────────────────────────────────────
+  if (appMode === "parent") {
+    const notificationCount = 3;
+    return (
+      <div className="relative">
+        {parentTab === "home" && <ParentHome onNavigate={setParentTab} />}
+        {parentTab === "stats" && <ParentStats />}
+        {parentTab === "forum" && <ParentForum />}
+        {parentTab === "notifications" && <ParentNotifications />}
+        {parentTab === "profile" && <ParentProfile onLogout={handleLogout} />}
+        <ParentBottomNav
+          activeTab={parentTab}
+          onTabChange={setParentTab}
+          notificationCount={notificationCount}
+        />
+      </div>
+    );
+  }
+
+  // ── CHILD APP ──────────────────────────────────────────────────────────
+  if (childTab === "ranking") {
     return (
       <>
         <RankingScreen />
-        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <BottomNav activeTab={childTab} onTabChange={setChildTab} />
       </>
     );
   }
-
-  if (activeTab === "trophies") {
+  if (childTab === "trophies") {
     return (
       <>
         <TrophiesScreen />
-        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <BottomNav activeTab={childTab} onTabChange={setChildTab} />
       </>
     );
   }
-
-  if (activeTab === "profile") {
+  if (childTab === "profile") {
     return (
       <>
         <ProfileScreen />
-        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <BottomNav activeTab={childTab} onTabChange={setChildTab} />
+        {/* Logout for child */}
+        <button
+          onClick={handleLogout}
+          className="fixed bottom-24 right-4 bg-white border border-gray-200 rounded-full px-4 py-2 text-xs font-bold text-[#494949]/60 shadow-md z-50"
+        >
+          ← Trocar usuário
+        </button>
       </>
     );
   }
@@ -172,11 +198,16 @@ export default function App() {
   return (
     <div className={`min-h-screen bg-gradient-to-b ${bgGradients[activeMascot]} overflow-auto pb-24 transition-colors duration-500`}>
       {/* Logo */}
-      <div className="max-w-md mx-auto px-6 pt-6 pb-2 flex justify-center">
+      <div className="max-w-md mx-auto px-6 pt-6 pb-2 flex justify-between items-center">
         <img src={logoLetrico} alt="Letrico" className="h-20 object-contain" />
+        <button
+          onClick={handleLogout}
+          className="text-xs text-[#494949]/40 font-medium hover:text-[#494949]/60"
+        >
+          Trocar ↩
+        </button>
       </div>
 
-      {/* Top section */}
       <div className="max-w-md mx-auto px-6 pt-2 pb-4">
         <TopStats
           userName={userProgress.userName}
@@ -185,7 +216,6 @@ export default function App() {
         />
       </div>
 
-      {/* Mascot Selector */}
       <div className="max-w-md mx-auto px-6 py-4 space-y-3">
         <MascotSelector
           activeMascot={activeMascot}
@@ -196,8 +226,6 @@ export default function App() {
             writing: userProgress.writing.completedLevels.length,
           }}
         />
-
-        {/* Current area title */}
         <motion.div
           key={activeMascot}
           initial={{ opacity: 0, y: -10 }}
@@ -215,7 +243,6 @@ export default function App() {
         </motion.div>
       </div>
 
-      {/* Map container */}
       <div className="max-w-md mx-auto px-6">
         <motion.div
           key={activeMascot}
@@ -229,17 +256,13 @@ export default function App() {
             minHeight: `${currentLevels.length * 140 + 200}px`,
           }}
         >
-          {/* Connecting path */}
           <MapPath
             positions={positions}
             completedUntil={currentMascotProgress.completedLevels.length}
           />
-
-          {/* Level nodes */}
           {currentLevels.map((levelConfig, index) => {
             const levelNum = index + 1;
             const position = getLevelPosition(index, containerWidth);
-
             return (
               <LevelNodeVertical
                 key={`${activeMascot}-${levelNum}`}
@@ -250,40 +273,22 @@ export default function App() {
                 position={position}
                 type={activeMascot}
                 name={levelConfig.name}
-                onClick={() => handleLevelClick(levelNum)}
+                onClick={() => console.log(`Clicked ${activeMascot} level ${levelNum}`)}
               />
             );
           })}
-
-          {/* Decorative clouds */}
-          <div className="absolute top-20 -left-8 text-4xl opacity-20 animate-bounce">
-            ☁️
-          </div>
-          <div
-            className="absolute top-60 -right-8 text-3xl opacity-20 animate-bounce"
-            style={{ animationDelay: "1s" }}
-          >
-            ⭐
-          </div>
-          <div
-            className="absolute bottom-40 -left-6 text-3xl opacity-20 animate-bounce"
-            style={{ animationDelay: "2s" }}
-          >
-            🌈
-          </div>
+          <div className="absolute top-20 -left-8 text-4xl opacity-20 animate-bounce">☁️</div>
+          <div className="absolute top-60 -right-8 text-3xl opacity-20 animate-bounce" style={{ animationDelay: "1s" }}>⭐</div>
+          <div className="absolute bottom-40 -left-6 text-3xl opacity-20 animate-bounce" style={{ animationDelay: "2s" }}>🌈</div>
         </motion.div>
 
-        {/* End message */}
         <div className="flex flex-col items-center gap-3 mt-12 mb-8">
           <div className="text-5xl animate-bounce">🎉</div>
-          <p className="text-lg font-bold text-[#494949]">
-            Continue aprendendo!
-          </p>
+          <p className="text-lg font-bold text-[#494949]">Continue aprendendo!</p>
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <BottomNav activeTab={childTab} onTabChange={setChildTab} />
     </div>
   );
 }
