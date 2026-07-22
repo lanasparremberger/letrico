@@ -1,0 +1,18 @@
+# Ignora a pasta de dependências (nunca deve subir para o GitHub)
+node_modules/
+
+# Ignora variáveis de ambiente (contém senhas e chaves de API)
+.env
+.env.local
+
+# Ignora arquivos de build, logs e relatórios do sistema
+dist/
+build/
+coverage/
+*.log
+
+# Ignora arquivos de configuração de IDEs e do Sistema Operacional
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
